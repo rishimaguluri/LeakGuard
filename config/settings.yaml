@@ -1,0 +1,28 @@
+# LeakGuard settings. The Settings page in the app writes back to this file.
+
+# demo: reads data/demo_raw/, uses data/leakguard_demo.db
+# real: reads data/raw/, uses data/leakguard_real.db
+data_mode: demo
+
+# Our fee as a fraction of recovered cash.
+fee_pct: 0.20
+
+# A charge within this many cents of the VCC amount counts as correct.
+charge_tolerance_cents: 100
+
+# Uncharged cards expiring within this many days go on the upcoming expiry list.
+upcoming_expiry_days: 7
+
+# Fuzzy fallback when OTA confirmation numbers do not match exactly.
+fuzzy_name_min_score: 90
+fuzzy_arrival_window_days: 1
+fuzzy_amount_tolerance_pct: 0.10
+
+# Processor settlement matching window, in days after the PMS posting date.
+settlement_window_days: 5
+
+# Hash guest last names before storing them. Recommended in real mode.
+hash_guest_names: false
+
+# Used when a property does not set its own timezone.
+default_timezone: America/New_York

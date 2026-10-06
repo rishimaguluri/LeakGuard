@@ -1,0 +1,97 @@
+# Portfolios, management companies and properties.
+# Each portfolio belongs to one data mode. The importer only loads portfolios
+# for the current mode, and folder names under data/<mode raw dir>/ must match
+# the portfolio slug and property codes below.
+#
+# Everything under mode: demo is fictional.
+
+portfolios:
+  - slug: summit_ridge
+    mode: demo
+    name: Summit Ridge Capital
+    owner_name: Summit Ridge Capital Fund II
+    owner_type: pe_fund
+    management_companies:
+      - Lakeview Hospitality
+      - Northpoint Hotel Group
+    properties:
+      - code: CMH01
+        name: Harborline Suites Columbus
+        brand: Harborline Suites
+        segment: select_service
+        city: Columbus
+        state: OH
+        room_count: 124
+        management_company: Lakeview Hospitality
+        pms_name: Opera
+        timezone: America/New_York
+      - code: IND01
+        name: Harborline Suites Indianapolis
+        brand: Harborline Suites
+        segment: select_service
+        city: Indianapolis
+        state: IN
+        room_count: 110
+        management_company: Lakeview Hospitality
+        pms_name: Opera
+        timezone: America/Indiana/Indianapolis
+      - code: NSH01
+        name: The Cobalt Nashville
+        brand: Cobalt Collection
+        segment: full_service
+        city: Nashville
+        state: TN
+        room_count: 312
+        management_company: Lakeview Hospitality
+        pms_name: Opera
+        timezone: America/Chicago
+      - code: CLT01
+        name: Pinecrest Inn Charlotte
+        brand: Pinecrest Inn
+        segment: select_service
+        city: Charlotte
+        state: NC
+        room_count: 96
+        management_company: Lakeview Hospitality
+        pms_name: GenericPMS
+        timezone: America/New_York
+      - code: AUS01
+        name: The Cobalt Austin
+        brand: Cobalt Collection
+        segment: full_service
+        city: Austin
+        state: TX
+        room_count: 348
+        management_company: Northpoint Hotel Group
+        pms_name: GenericPMS
+        timezone: America/Chicago
+      - code: DEN01
+        name: Pinecrest Inn Denver
+        brand: Pinecrest Inn
+        segment: select_service
+        city: Denver
+        state: CO
+        room_count: 132
+        management_company: Northpoint Hotel Group
+        pms_name: GenericPMS
+        timezone: America/Denver
+      - code: RAL01
+        name: Harborline Suites Raleigh
+        brand: Harborline Suites
+        segment: select_service
+        city: Raleigh
+        state: NC
+        room_count: 104
+        management_company: Northpoint Hotel Group
+        pms_name: Opera
+        timezone: America/New_York
+      - code: SAV01
+        name: Meridian House Savannah
+        brand: Meridian House
+        segment: full_service
+        city: Savannah
+        state: GA
+        room_count: 228
+        management_company: Northpoint Hotel Group
+        pms_name: GenericPMS
+        timezone: America/New_York

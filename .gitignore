@@ -1,0 +1,26 @@
+# Real hotel data and anything derived from it. Never commit.
+data/raw/*
+!data/raw/.gitkeep
+data/*.db
+data/processed/
+exports/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
