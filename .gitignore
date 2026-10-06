@@ -24,3 +24,8 @@ dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Demo raw files are generated from a fixed seed by `python -m leakguard demo`
+# (about 23 MB, so not committed).
+data/demo_raw/*
+!data/demo_raw/.gitkeep

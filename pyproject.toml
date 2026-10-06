@@ -25,3 +25,4 @@ src = ["src", "app", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["SIM905"]

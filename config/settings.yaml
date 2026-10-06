@@ -1,28 +1,26 @@
 # LeakGuard settings. The Settings page in the app writes back to this file.
+# data_mode: demo reads data/demo_raw/ and uses data/leakguard_demo.db
+#            real reads data/raw/ and uses data/leakguard_real.db
+# Amounts are in cents. Percentages are fractions (0.20 means 20%).
 
-# demo: reads data/demo_raw/, uses data/leakguard_demo.db
-# real: reads data/raw/, uses data/leakguard_real.db
 data_mode: demo
-
-# Our fee as a fraction of recovered cash.
-fee_pct: 0.20
-
-# A charge within this many cents of the VCC amount counts as correct.
+fee_pct: 0.2
 charge_tolerance_cents: 100
-
-# Uncharged cards expiring within this many days go on the upcoming expiry list.
 upcoming_expiry_days: 7
-
-# Fuzzy fallback when OTA confirmation numbers do not match exactly.
 fuzzy_name_min_score: 90
 fuzzy_arrival_window_days: 1
-fuzzy_amount_tolerance_pct: 0.10
-
-# Processor settlement matching window, in days after the PMS posting date.
+fuzzy_amount_tolerance_pct: 0.1
 settlement_window_days: 5
-
-# Hash guest last names before storing them. Recommended in real mode.
 hash_guest_names: false
-
-# Used when a property does not set its own timezone.
 default_timezone: America/New_York
+cap_rate: 0.08
+as_of_date: null
+demo_as_of_date: '2026-09-30'
+virtual_card_keywords:
+- virtual
+- vcc
+- expedia
+- booking
+- bcom
+- ota
+- eva

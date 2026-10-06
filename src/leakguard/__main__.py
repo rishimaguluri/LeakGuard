@@ -14,7 +14,14 @@ def _not_built(phase: int) -> int:
 
 
 def cmd_demo(args: argparse.Namespace) -> int:
-    return _not_built(1)
+    from leakguard.demo.generator import generate_demo
+
+    settings = load_settings().model_copy(update={"data_mode": "demo"})
+    print(f"Generating demo files in {settings.raw_dir} ...")
+    truth = generate_demo(settings)
+    cards = sum(p["cards"] for p in truth["properties"].values())
+    print(f"Wrote {len(truth['properties'])} properties, {cards:,} virtual cards.")
+    return 0
 
 
 def cmd_import(args: argparse.Namespace) -> int:
