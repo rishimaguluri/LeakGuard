@@ -14,13 +14,44 @@ def _not_built(phase: int) -> int:
 
 
 def cmd_demo(args: argparse.Namespace) -> int:
+    """Generate demo files, rebuild the demo database, import, match, seed history."""
+    from leakguard.db import dispose_engine
     from leakguard.demo.generator import generate_demo
+    from leakguard.demo.history import seed_history
+    from leakguard.ingest.importer import format_summary, import_all
+    from leakguard.matching.engine import run_matching
 
     settings = load_settings().model_copy(update={"data_mode": "demo"})
-    print(f"Generating demo files in {settings.raw_dir} ...")
+    print(f"1/4 Generating demo export files in {settings.raw_dir} ...")
     truth = generate_demo(settings)
     cards = sum(p["cards"] for p in truth["properties"].values())
-    print(f"Wrote {len(truth['properties'])} properties, {cards:,} virtual cards.")
+    print(f"    {len(truth['properties'])} properties, {cards:,} virtual cards.")
+
+    dispose_engine(settings)
+    if settings.db_path.exists():
+        settings.db_path.unlink()
+    print("2/4 Importing (same pipeline as real data) ...")
+    summary = import_all(settings)
+    if args.verbose:
+        print(format_summary(summary))
+    else:
+        rejected = sum(r.rows_rejected for r in summary.reports)
+        print(
+            f"    {len(summary.reports)} files, {summary.rows_imported:,} rows, {rejected} rejected."
+        )
+        for r in summary.reports:
+            for w in r.warnings:
+                if w.startswith("Full card numbers"):
+                    print(f"    warning: {w}")
+
+    print("3/4 Matching ...")
+    match = run_matching(settings)
+    print("    " + "\n    ".join(match.lines()))
+
+    print("4/4 Adding six months of simulated recovery work ...")
+    counts = seed_history(settings)
+    print("    " + ", ".join(f"{n} {k.replace('_', ' ')}" for k, n in counts.items()))
+    print("Ready. Open the dashboard with: streamlit run app/Home.py")
     return 0
 
 
@@ -60,6 +91,9 @@ def cmd_reset(args: argparse.Namespace) -> int:
         if answer.strip() != args.mode:
             print("Cancelled.")
             return 1
+    from leakguard.db import dispose_engine
+
+    dispose_engine(settings)
     db_path.unlink()
     print(f"Deleted {db_path.name}.")
     return 0
@@ -69,7 +103,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="leakguard")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("demo", help="Generate demo files, import and match").set_defaults(func=cmd_demo)
+    demo = sub.add_parser("demo", help="Generate demo files, import and match")
+    demo.add_argument("--verbose", action="store_true", help="Print the full import report")
+    demo.set_defaults(func=cmd_demo)
     sub.add_parser(
         "import", help="Import every file in the current mode's raw folder"
     ).set_defaults(func=cmd_import)
