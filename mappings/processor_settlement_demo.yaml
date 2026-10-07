@@ -1,0 +1,19 @@
+name: processor_settlement_demo
+source_name: processor_settlement
+target: processor_transactions
+file_types: [csv, xlsx]
+header_row: auto            # this report has title rows above the header
+columns:
+  transaction_date: ["Transaction Date", "Txn Date", "Trans Date", "Date"]
+  settlement_date: ["Settlement Date", "Funding Date", "Batch Date", "Deposit Date"]
+  card_last4: ["Card Number", "Last 4", "Card Last 4", "Account Number", "Masked Card"]
+  amount: ["Amount", "Transaction Amount", "Sale Amount"]
+  transaction_type: ["Transaction Type", "Type", "Tran Type"]
+  auth_code: ["Auth Code", "Authorization Code", "Approval Code"]
+  reference: ["Reference", "Invoice", "Order ID", "Folio"]
+  currency: ["Currency"]
+defaults:
+  currency: USD
+notes: >-
+  PLACEHOLDER generic processor settlement report built for demo files.
+  Confirm against the hotel's actual processor or gateway export.

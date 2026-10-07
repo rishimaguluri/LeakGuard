@@ -1,0 +1,21 @@
+name: booking_payments_demo
+source_name: booking_vcc
+target: vcc_records
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  ota_confirmation_no: ["Reservation number", "Booking number", "Reservation ID"]
+  guest_name: ["Booker name", "Guest name"]
+  arrival_date: ["Arrival", "Check-in"]
+  card_last4: ["Virtual card number", "Card number", "Card last 4"]
+  vcc_amount: ["Amount", "Card amount", "Virtual card amount"]
+  currency: ["Currency"]
+  activation_date: ["Activation date", "Card activation date"]
+  expiry_date: ["Expiration date", "Expiry date", "Card expiry"]
+  ota_status: ["Payment status", "Status"]
+defaults:
+  ota: booking
+  currency: USD
+notes: >-
+  PLACEHOLDER mapping built for demo files (Payments by Booking.com style).
+  Not confirmed against a real Booking.com extranet export.

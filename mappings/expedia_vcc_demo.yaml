@@ -1,0 +1,21 @@
+name: expedia_vcc_demo
+source_name: expedia_vcc
+target: vcc_records
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  ota_confirmation_no: ["Reservation ID", "Itinerary Number", "Confirmation Number", "Booking ID"]
+  guest_name: ["Guest Name", "Traveler Name"]
+  arrival_date: ["Check-In", "Check In Date", "Arrival Date"]
+  card_last4: ["Card Last 4", "Card Number", "Card"]   # full numbers keep last 4 only, with a warning
+  vcc_amount: ["Card Amount", "Amount to Charge", "Amount"]
+  currency: ["Currency"]
+  activation_date: ["Card Active From", "Activation Date", "Card Activation Date"]
+  expiry_date: ["Card Expiry", "Expiration Date", "Expiry Date"]
+  ota_status: ["Card Status", "Status"]
+defaults:
+  ota: expedia
+  currency: USD
+notes: >-
+  PLACEHOLDER mapping built for demo files. Expedia extranet report names and
+  columns are not confirmed. Confirm against a real export.

@@ -25,11 +25,23 @@ def cmd_demo(args: argparse.Namespace) -> int:
 
 
 def cmd_import(args: argparse.Namespace) -> int:
-    return _not_built(2)
+    from leakguard.ingest.importer import format_summary, import_all
+
+    settings = load_settings()
+    print(f"Importing {settings.data_mode} data from {settings.raw_dir} ...")
+    summary = import_all(settings)
+    print(format_summary(summary))
+    return 1 if any(r.status == "failed" for r in summary.reports) else 0
 
 
 def cmd_match(args: argparse.Namespace) -> int:
-    return _not_built(3)
+    from leakguard.matching.engine import run_matching
+
+    settings = load_settings()
+    print(f"Matching {settings.data_mode} data as of {settings.as_of()} ...")
+    summary = run_matching(settings)
+    print("\n".join(summary.lines()))
+    return 0
 
 
 def cmd_report(args: argparse.Namespace) -> int:

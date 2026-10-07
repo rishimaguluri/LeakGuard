@@ -25,4 +25,4 @@ src = ["src", "app", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["SIM905"]
+ignore = ["SIM905", "E501"]  # formatter handles code width; long strings are user-facing messages

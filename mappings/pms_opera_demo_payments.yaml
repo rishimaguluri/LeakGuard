@@ -1,0 +1,17 @@
+name: pms_opera_demo_payments
+source_name: pms_payments
+target: pms_payments
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  pms_confirmation_no: ["Conf No", "Confirmation No"]
+  posting_date: ["Trx Date"]
+  payment_type: ["Description"]
+  card_last4: ["Card No"]
+  amount: ["Amount"]
+  currency: ["Currency"]
+defaults:
+  currency: USD
+notes: >-
+  PLACEHOLDER. Built for the demo files. NOT confirmed against any real Opera
+  report. Negative amounts are treated as reversals.

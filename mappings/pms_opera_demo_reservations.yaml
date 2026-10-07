@@ -1,0 +1,29 @@
+name: pms_opera_demo_reservations
+source_name: pms_reservations
+target: reservations
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  pms_confirmation_no: ["Conf No", "Confirmation No"]
+  ota_confirmation_no: ["External Ref", "External Reference", "Channel Conf No"]
+  channel: ["Source Code", "Source"]
+  payment_model: ["Payment Method"]
+  guest_name: ["Guest Name", "Name"]
+  arrival_date: ["Arrival"]
+  departure_date: ["Departure"]
+  nights: ["Nights"]
+  status: ["Res Status"]
+  room_revenue: ["Room Rev"]
+  tax: ["Tax Amt"]
+  folio_total: ["Total Rev"]
+  currency: ["Currency"]
+lookups:
+  payment_model:
+    OTA COLLECT VCC: ota_collect
+    CREDIT CARD: hotel_collect
+defaults:
+  currency: USD
+notes: >-
+  PLACEHOLDER. Built for the demo files, which imitate a report-style PMS
+  export. Column names are illustrative and NOT confirmed against any real
+  Opera report. Replace with a mapping made from a real export.

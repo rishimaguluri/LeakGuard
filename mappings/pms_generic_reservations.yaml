@@ -1,0 +1,32 @@
+name: pms_generic_reservations
+source_name: pms_reservations
+target: reservations
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  pms_confirmation_no: ["Confirmation #", "Confirmation Number", "Conf #", "Confirmation", "Reservation Number", "Res #"]
+  ota_confirmation_no: ["OTA Confirmation", "Third Party Confirmation", "External Confirmation", "Channel Confirmation", "Source Confirmation"]
+  channel: ["Channel", "Source", "Booking Source", "Origin"]
+  payment_model: ["Rate Plan", "Payment Type", "Guarantee Type", "Payment Model"]
+  guest_last_name: ["Guest Last Name", "Last Name", "Surname"]
+  guest_name: ["Guest Name", "Guest"]
+  arrival_date: ["Arrival Date", "Arrival", "Check In", "Check-In Date"]
+  departure_date: ["Departure Date", "Departure", "Check Out", "Check-Out Date"]
+  nights: ["Nights", "Room Nights", "LOS"]
+  status: ["Status", "Reservation Status", "Res Status"]
+  room_revenue: ["Room Revenue", "Room Rev", "Room Charges"]
+  tax: ["Tax", "Room Tax", "Taxes"]
+  folio_total: ["Total", "Folio Total", "Total Revenue", "Balance"]
+  currency: ["Currency"]
+lookups:
+  payment_model:
+    BAR: hotel_collect
+    AAA: hotel_collect
+    CORP: hotel_collect
+    GOV: hotel_collect
+defaults:
+  currency: USD
+notes: >-
+  PLACEHOLDER generic PMS reservation export, written for the demo files.
+  Header names are common examples, not taken from a specific PMS. Confirm
+  against a real export and add aliases as needed.

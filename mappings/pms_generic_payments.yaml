@@ -1,0 +1,18 @@
+name: pms_generic_payments
+source_name: pms_payments
+target: pms_payments
+file_types: [csv, xlsx]
+header_row: auto
+columns:
+  pms_confirmation_no: ["Confirmation #", "Confirmation Number", "Conf #", "Folio #", "Folio Number", "Reservation Number"]
+  posting_date: ["Date", "Posting Date", "Transaction Date", "Post Date"]
+  payment_type: ["Payment Method", "Payment Type", "Method", "Description"]
+  card_last4: ["Card Last Four", "Card Last 4", "Last 4", "Card Number", "Masked Card"]
+  amount: ["Amount", "Payment Amount", "Credit"]
+  is_reversal: ["Reversal", "Is Reversal", "Reversed", "Adjustment"]
+  currency: ["Currency"]
+defaults:
+  currency: USD
+notes: >-
+  PLACEHOLDER generic PMS payment ledger, written for the demo files.
+  Confirm against a real export.

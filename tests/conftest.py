@@ -61,3 +61,39 @@ def small_demo(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, dict]:
     )
     mp.undo()
     return root, truth
+
+
+@pytest.fixture(scope="session")
+def imported_demo(small_demo: tuple[Path, dict], tmp_path_factory: pytest.TempPathFactory):
+    """small_demo imported and matched once. Treat as read-only."""
+    from leakguard.ingest.importer import import_all
+    from leakguard.matching.engine import run_matching
+
+    source, truth = small_demo
+    root = tmp_path_factory.mktemp("imported_demo")
+    shutil.copytree(source, root, dirs_exist_ok=True)
+    mp = pytest.MonkeyPatch()
+    for key, value in make_env(root).items():
+        mp.setenv(key, value)
+    settings = load_settings()
+    summary = import_all(settings)
+    match = run_matching(settings)
+    yield root, truth, settings, summary, match
+    from leakguard.db import dispose_engine
+
+    dispose_engine(settings)
+    mp.undo()
+
+
+@pytest.fixture
+def demo_copy(imported_demo, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """A private, writable copy of imported_demo for tests that change data."""
+    source, truth, *_ = imported_demo
+    shutil.copytree(source, tmp_path, dirs_exist_ok=True)
+    for key, value in make_env(tmp_path).items():
+        monkeypatch.setenv(key, value)
+    settings = load_settings()
+    yield tmp_path, truth, settings
+    from leakguard.db import dispose_engine
+
+    dispose_engine(settings)
