@@ -4,13 +4,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from leakguard.config import load_settings
-
-
-def _not_built(phase: int) -> int:
-    print(f"Not built yet. Arrives in phase {phase}.")
-    return 2
 
 
 def cmd_demo(args: argparse.Namespace) -> int:
@@ -76,7 +72,39 @@ def cmd_match(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    return _not_built(5)
+    """Write the Excel workbook and PDF summary to exports/."""
+    from datetime import date
+
+    from leakguard.config import exports_dir
+    from leakguard.db import session_scope
+    from leakguard.reporting.excel_report import build_workbook
+    from leakguard.reporting.metrics import default_period
+    from leakguard.reporting.pdf_report import build_pdf
+    from leakguard.reporting.report_data import build_report, find_portfolio
+
+    settings = load_settings()
+    if not settings.db_path.exists():
+        print(f"No {settings.data_mode} database yet. Run python -m leakguard import first.")
+        return 1
+    start, end = default_period(settings.as_of())
+    if args.start:
+        start = date.fromisoformat(args.start)
+    if args.end:
+        end = date.fromisoformat(args.end)
+    with session_scope(settings) as session:
+        pf = find_portfolio(session, args.portfolio)
+        if pf is None:
+            print(f"No portfolio '{args.portfolio}' in the {settings.data_mode} database.")
+            return 1
+        data = build_report(session, settings, pf.id, start, end)
+    out = Path(args.out) if args.out else exports_dir()
+    out.mkdir(parents=True, exist_ok=True)
+    stem = f"leakguard_audit_{data.slug}_{start:%Y%m%d}_{end:%Y%m%d}"
+    xlsx, pdf = out / f"{stem}.xlsx", out / f"{stem}.pdf"
+    xlsx.write_bytes(build_workbook(data))
+    pdf.write_bytes(build_pdf(data))
+    print(f"Wrote {xlsx}\nWrote {pdf}")
+    return 0
 
 
 def cmd_reset(args: argparse.Namespace) -> int:
@@ -113,6 +141,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     report = sub.add_parser("report", help="Export the audit report")
     report.add_argument("--portfolio", required=True, help="Portfolio slug")
+    report.add_argument("--start", help="Period start, YYYY-MM-DD (default: 12 months to as-of)")
+    report.add_argument("--end", help="Period end, YYYY-MM-DD")
+    report.add_argument("--out", help="Output folder (default: exports/)")
     report.set_defaults(func=cmd_report)
 
     reset = sub.add_parser("reset", help="Wipe one mode's database")
