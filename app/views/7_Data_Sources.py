@@ -130,20 +130,23 @@ view["status_pill"] = [
     for s in view["status"]
 ]
 view["dates"] = [
-    f"{M.fmt_date(a)} to {M.fmt_date(b)}" if a else "-"
+    f"{a:%b %Y} to {b:%b %Y}" if a and b else "-"
     for a, b in zip(view["date_min"], view["date_max"], strict=True)
 ]
-view["note"] = view["message"].fillna("")
+view["file_cell"] = [
+    f"{ui.esc(f)}<span class='lg-cov-reason'>{ui.esc(m or 'No mapping')}"
+    + (f" · {ui.esc(msg)}" if isinstance(msg, str) and msg else "")
+    + "</span>"
+    for f, m, msg in zip(view["file_name"], view["mapping_name"], view["message"], strict=True)
+]
 ui.table(
     view,
     [
         ui.Col("property_code", "Property", lambda v: f"<b>{ui.esc(v)}</b>"),
         ui.Col("source", "Source"),
-        ui.Col("file_name", "File"),
+        ui.Col("file_cell", "File and mapping", lambda v: v),
         ui.Col("status_pill", "Status", lambda v: v),
-        ui.Col("mapping_name", "Mapping", lambda v: ui.esc(v or "-")),
-        ui.Col("rows_read", "Read", ui.fmt_int, num=True),
-        ui.Col("rows_imported", "Imported", ui.fmt_int, num=True),
+        ui.Col("rows_imported", "Rows", ui.fmt_int, num=True),
         ui.Col(
             "rows_rejected",
             "Rejected",
@@ -152,7 +155,6 @@ ui.table(
             tone=lambda r: "loss" if r["rows_rejected"] else "",
         ),
         ui.Col("dates", "Dates covered"),
-        ui.Col("note", "Notes", lambda v: ui.esc(v)),
     ],
 )
 

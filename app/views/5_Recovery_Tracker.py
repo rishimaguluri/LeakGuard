@@ -57,7 +57,7 @@ fig = go.Figure(
         y=monthly["recovered_cents"] / 100,
         marker_color=ui.GAIN,
         customdata=[M.money(v) for v in monthly["recovered_cents"]],
-        hovertemplate="%{x}<br>Recovered %{customdata}<extra></extra>",
+        hovertemplate="Recovered %{customdata}<extra></extra>",
     )
 )
 cumulative = monthly["recovered_cents"].cumsum()
@@ -69,11 +69,10 @@ fig.add_scatter(
     line=dict(color=ui.ACCENT, width=2),
     marker=dict(size=8, symbol="circle", line=dict(color=ui.CARD, width=2)),
     customdata=[M.money(v) for v in cumulative],
-    hovertemplate="%{x}<br>To date %{customdata}<extra></extra>",
+    hovertemplate="To date %{customdata}<extra></extra>",
 )
 fig.data[0].name = "Recovered in month"
-fig.update_layout(hovermode="x unified")
-ui.show(ui.style(fig, 300))
+ui.show(ui.month_axis(ui.style(fig, 300), monthly))
 
 a, b = st.columns(2, gap="large")
 with a:
@@ -111,7 +110,7 @@ ui.table(
         ui.Col("property_code", "Property", lambda v: f"<b>{ui.esc(v)}</b>"),
         ui.Col("type_pill", "Type", lambda v: v),
         ui.Col("ota_confirmation_no", "OTA confirmation"),
-        ui.Col("assigned_to", "Worked by", lambda v: ui.esc(v if isinstance(v, str) else "-")),
+        ui.Col("assigned_to", "Assigned to", lambda v: ui.esc(v if isinstance(v, str) else "-")),
         ui.Col("recovered_cents", "Amount", ui.fmt_money_cents, num=True, tone=lambda row: "gain"),
     ],
 )

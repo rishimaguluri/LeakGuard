@@ -44,6 +44,17 @@ def dispose_engine(settings: Settings) -> None:
         engine.dispose()
 
 
+def reset_database(settings: Settings) -> None:
+    """Empty one mode's database. Drops and recreates every table rather than
+    deleting the file, so it works while the dashboard has the file open."""
+    engine = get_engine(settings)
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+    if engine.url.get_backend_name() == "sqlite":
+        with engine.connect() as conn:
+            conn.exec_driver_sql("VACUUM")
+
+
 @contextmanager
 def session_scope(settings: Settings | None = None) -> Iterator[Session]:
     """Session that commits on success and rolls back on error."""

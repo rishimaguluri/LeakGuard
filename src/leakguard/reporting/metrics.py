@@ -525,6 +525,10 @@ def monthly(df: pd.DataFrame, start: date, end: date) -> pd.DataFrame:
             out["recovered_cents"] = g.reindex(months, fill_value=0).astype("int64")
     out["month"] = [p.to_timestamp() for p in out.index]
     out["month_label"] = [p.strftime("%b %Y") for p in out.index]
+    out["month_short"] = [
+        p.strftime("%b<br>%Y") if p.month == 1 or i == 0 else p.strftime("%b")
+        for i, p in enumerate(out.index)
+    ]
     return out.reset_index(drop=True)
 
 
@@ -590,13 +594,17 @@ def top_actions(df_all: pd.DataFrame, n: int = 5) -> pd.DataFrame:
 
 
 def next_steps(
-    s: Summary, df_all: pd.DataFrame, card: pd.DataFrame, coverage_gaps: int
+    s: Summary,
+    df_all: pd.DataFrame,
+    card: pd.DataFrame,
+    coverage_gaps: int,
+    window_days: int = 7,
 ) -> list[str]:
     """Short, plain to-do list for the home page, built only from the numbers."""
     steps: list[str] = []
     if s.expiring_count:
         steps.append(
-            f"Charge the {s.expiring_count} card{'s' if s.expiring_count != 1 else ''} expiring in the next few days "
+            f"Charge the {s.expiring_count} card{'s' if s.expiring_count != 1 else ''} expiring in the next {window_days} days "
             f"({money(s.expiring_cents)}). After expiry, recovery needs an OTA claim."
         )
     exc = df_all[df_all["is_open"]] if not df_all.empty else df_all

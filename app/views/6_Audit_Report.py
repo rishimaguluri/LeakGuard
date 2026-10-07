@@ -79,9 +79,9 @@ ui.kpis(
             "Estimate, not guaranteed",
         ),
         ui.Kpi(
-            f"Fee at {data.fee_pct * 100:.0f}% / owner net",
-            f"{M.money(s.fee_cents)} / {M.money(s.owner_net_cents)}",
-            "On cash recovered so far",
+            f"LeakGuard fee at {data.fee_pct * 100:.0f}%",
+            M.money(s.fee_cents),
+            f"Owner keeps {M.money(s.owner_net_cents)} of cash recovered so far",
         ),
         ui.Kpi(
             "NOI impact, annualized",
@@ -148,6 +148,8 @@ for title, body in data.method:
         st.markdown(body)
 st.markdown(
     f'<p class="lg-footnote">The workbook has {len(data.line_items):,} line items with the evidence for each '
-    "flagged card, sorted by priority.</p>",
+    f"flagged card, sorted by priority. That includes "
+    f"{int((data.line_items['status'] == 'not_an_issue').sum()) if len(data.line_items) else 0} items a person "
+    "marked not an issue, which are not counted as leaked.</p>",
     unsafe_allow_html=True,
 )

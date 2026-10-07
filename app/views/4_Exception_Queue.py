@@ -1,6 +1,7 @@
 """Exception queue: filter, review evidence, and work items to recovery."""
 
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -192,7 +193,7 @@ event = st.dataframe(
     key="queue_table",
     column_config={
         "Priority": st.column_config.NumberColumn(width="small"),
-        "At risk": st.column_config.NumberColumn(format="$%.2f"),
+        "At risk": st.column_config.NumberColumn(format="dollar"),
         "Days to expiry": st.column_config.NumberColumn(format="%d"),
     },
 )
@@ -260,6 +261,19 @@ with session_scope(c.settings) as ses:
     ev = load_evidence(ses, focus, c.settings.settlement_window_days)
 e = ev.exception
 row = q_all[q_all["id"] == focus].iloc[0]
+
+
+CHANNEL_LABELS = {
+    "expedia": "Expedia",
+    "booking": "Booking.com",
+    "direct": "Direct",
+    "other": "Other",
+}
+PAYMENT_LABELS = {
+    "ota_collect": "OTA collect",
+    "hotel_collect": "Hotel collect",
+    "unknown": "Unknown",
+}
 
 
 def describe_event(evn) -> str:  # noqa: ANN001
@@ -338,7 +352,7 @@ with st.container(border=True):
                         ),
                     ),
                     ("OTA status", ui.esc(vcc.ota_status if vcc and vcc.ota_status else "-")),
-                    ("Source file", ui.esc(ev.vcc_file or "-")),
+                    ("Source file", ui.esc(Path(ev.vcc_file).name if ev.vcc_file else "-")),
                 ]
             ),
             unsafe_allow_html=True,
@@ -359,10 +373,12 @@ with st.container(border=True):
                         ("OTA confirmation in PMS", ui.esc(res.ota_confirmation_no or "Blank")),
                         ("Guest", ui.esc(res.guest_last_name or "-")),
                         ("Stay", f"{d(res.arrival_date)} to {d(res.departure_date)}"),
-                        ("Status", ui.esc(res.status.replace("_", " "))),
+                        ("Status", ui.esc(res.status.replace("_", " ").capitalize())),
                         (
                             "Channel / payment",
-                            ui.esc(f"{res.channel} / {res.payment_model.replace('_', ' ')}"),
+                            ui.esc(
+                                f"{CHANNEL_LABELS.get(res.channel, res.channel)} / {PAYMENT_LABELS.get(res.payment_model, res.payment_model)}"
+                            ),
                         ),
                         (
                             "Room + tax",
@@ -370,7 +386,10 @@ with st.container(border=True):
                                 M.money((res.room_revenue_cents or 0) + (res.tax_cents or 0), True)
                             ),
                         ),
-                        ("Source file", ui.esc(ev.reservation_file or "-")),
+                        (
+                            "Source file",
+                            ui.esc(Path(ev.reservation_file).name if ev.reservation_file else "-"),
+                        ),
                     ]
                 ),
                 unsafe_allow_html=True,

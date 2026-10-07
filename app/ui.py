@@ -262,6 +262,18 @@ def show(fig: go.Figure) -> None:
     st.plotly_chart(fig, width="stretch", config={"displayModeBar": False, "responsive": True})
 
 
+def month_axis(fig: go.Figure, monthly: pd.DataFrame) -> go.Figure:
+    """Horizontal month ticks ("Oct", with the year under January), full month on hover."""
+    fig.update_xaxes(
+        tickmode="array",
+        tickvals=list(monthly["month_label"]),
+        ticktext=list(monthly["month_short"]),
+        tickangle=0,
+    )
+    fig.update_layout(hovermode="x unified")
+    return fig
+
+
 def trend_chart(monthly: pd.DataFrame, height: int = 300) -> go.Figure:
     """Leaked as bars, recovered as a line with markers (shape, not only color)."""
     fig = go.Figure()
@@ -271,7 +283,7 @@ def trend_chart(monthly: pd.DataFrame, height: int = 300) -> go.Figure:
         name="Leaked (by stay month)",
         marker_color=LOSS,
         customdata=[money(v) for v in monthly["leaked_cents"]],
-        hovertemplate="%{x}<br>Leaked %{customdata}<extra></extra>",
+        hovertemplate="Leaked %{customdata}<extra></extra>",
     )
     fig.add_scatter(
         x=monthly["month_label"],
@@ -281,10 +293,9 @@ def trend_chart(monthly: pd.DataFrame, height: int = 300) -> go.Figure:
         line=dict(color=GAIN, width=2),
         marker=dict(size=9, symbol="diamond", color=GAIN, line=dict(color=CARD, width=2)),
         customdata=[money(v) for v in monthly["recovered_cents"]],
-        hovertemplate="%{x}<br>Recovered %{customdata}<extra></extra>",
+        hovertemplate="Recovered %{customdata}<extra></extra>",
     )
-    fig.update_layout(hovermode="x unified")
-    return style(fig, height)
+    return month_axis(style(fig, height), monthly)
 
 
 def hbar(
@@ -331,7 +342,7 @@ def line_chart(monthly: pd.DataFrame, height: int = 300) -> go.Figure:
         line=dict(color=LOSS, width=2),
         marker=dict(size=8, symbol="circle", color=LOSS, line=dict(color=CARD, width=2)),
         customdata=[money(v) for v in monthly["leaked_cents"]],
-        hovertemplate="%{x}<br>Leaked %{customdata}<extra></extra>",
+        hovertemplate="Leaked %{customdata}<extra></extra>",
     )
     fig.add_scatter(
         x=monthly["month_label"],
@@ -341,7 +352,6 @@ def line_chart(monthly: pd.DataFrame, height: int = 300) -> go.Figure:
         line=dict(color=GAIN, width=2, dash="dot"),
         marker=dict(size=9, symbol="diamond", color=GAIN, line=dict(color=CARD, width=2)),
         customdata=[money(v) for v in monthly["recovered_cents"]],
-        hovertemplate="%{x}<br>Recovered %{customdata}<extra></extra>",
+        hovertemplate="Recovered %{customdata}<extra></extra>",
     )
-    fig.update_layout(hovermode="x unified")
-    return style(fig, height)
+    return month_axis(style(fig, height), monthly)

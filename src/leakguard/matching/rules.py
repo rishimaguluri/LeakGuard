@@ -74,6 +74,11 @@ class Classification:
     rule: str
 
 
+def day(d: date | None) -> str:
+    """Sep 3, 2026"""
+    return f"{d:%b} {d.day}, {d.year}" if d else "unknown date"
+
+
 def money(cents: int) -> str:
     sign = "-" if cents < 0 else ""
     return f"{sign}${abs(cents) / 100:,.2f}"
@@ -183,16 +188,16 @@ def rule_nothing_charged(case: VccCase) -> Classification | None:
         return Classification(
             "EXPIRED_UNCHARGED",
             amount,
-            f"Card for {money(amount)} expired on {case.vcc.expiry_date} and was never "
+            f"Card for {money(amount)} expired on {day(case.vcc.expiry_date)} and was never "
             "charged. Recovery needs a claim with the OTA.",
         )
     if guest_stayed(case.reservation, case.as_of):
         return Classification(
             "UNCHARGED",
             amount,
-            f"Guest stayed ({case.reservation.arrival_date} to "
-            f"{case.reservation.departure_date}) but nothing was charged to the "
-            f"{money(amount)} card. Card is still active until {case.vcc.expiry_date}.",
+            f"Guest stayed ({day(case.reservation.arrival_date)} to "
+            f"{day(case.reservation.departure_date)}) but nothing was charged to the "
+            f"{money(amount)} card. Card is still active until {day(case.vcc.expiry_date)}.",
         )
     return Classification("NOT_YET_DUE", 0, "Guest has not arrived yet. Nothing to charge.")
 

@@ -19,6 +19,8 @@ from leakguard.ingest.suggest import build_mapping, safe_mapping_name, suggest
 from leakguard.matching.engine import run_matching
 from leakguard.schemas import ENUM_VALUES, SOURCE_LABELS, SOURCE_TARGETS, TARGETS
 
+DELIMITER_NAMES = {",": "commas", ";": "semicolons", "\t": "tabs", "|": "pipes"}
+
 c = context.ctx()
 ui.topbar(c.portfolio_name, c.settings.data_mode)
 ui.page_header(
@@ -79,7 +81,11 @@ if not table.header or not table.rows:
 st.markdown(
     f"Found <b>{len(table.rows):,}</b> rows and <b>{len(table.header)}</b> columns. Header is on row "
     f"<b>{table.first_row_number - 1}</b>"
-    + (f", delimiter <code>{ui.esc(table.delimiter)}</code>" if table.delimiter else "")
+    + (
+        f", separated by {DELIMITER_NAMES.get(table.delimiter, repr(table.delimiter))}"
+        if table.delimiter
+        else ""
+    )
     + (f", sheet <b>{ui.esc(table.sheet)}</b>" if table.sheet else "")
     + ".",
     unsafe_allow_html=True,
@@ -165,7 +171,7 @@ st.dataframe(
     width="stretch",
     hide_index=True,
     column_config={
-        col: st.column_config.NumberColumn(col.replace("_cents", ""), format="$%.2f")
+        col: st.column_config.NumberColumn(col.replace("_cents", ""), format="dollar")
         for col in rows.columns
         if col.endswith("_cents")
     },

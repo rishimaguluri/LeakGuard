@@ -3,33 +3,44 @@ from pathlib import Path
 import pytest
 
 from leakguard import __main__ as cli
-from leakguard.config import Settings
 
 
 @pytest.fixture
-def temp_db(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Point Settings.db_path at a temp file so reset never touches real data."""
-    db = tmp_path / "leakguard_demo.db"
-    monkeypatch.setattr(Settings, "db_path", property(lambda self: db))
-    return db
+def temp_db(isolated_env: Path) -> Path:
+    """A demo database in a temp folder, holding one portfolio row."""
+    from leakguard.config import load_settings
+    from leakguard.db import session_scope
+    from leakguard.models import Portfolio
+
+    settings = load_settings()
+    with session_scope(settings) as s:
+        s.add(Portfolio(slug="x", name="X", owner_name="X", owner_type="independent"))
+    return settings.db_path
 
 
-def test_reset_with_yes_deletes_db(temp_db: Path) -> None:
-    temp_db.write_text("x")
+def _portfolios() -> int:
+    from leakguard.config import load_settings
+    from leakguard.db import session_scope
+    from leakguard.models import Portfolio
+
+    with session_scope(load_settings()) as s:
+        return s.query(Portfolio).count()
+
+
+def test_reset_with_yes_empties_db(temp_db: Path) -> None:
     assert cli.main(["reset", "--mode", "demo", "--yes"]) == 0
-    assert not temp_db.exists()
+    assert _portfolios() == 0
 
 
 def test_reset_cancels_on_wrong_confirmation(
     temp_db: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    temp_db.write_text("x")
     monkeypatch.setattr("builtins.input", lambda _: "no")
     assert cli.main(["reset", "--mode", "demo"]) == 1
-    assert temp_db.exists()
+    assert _portfolios() == 1
 
 
-def test_reset_when_nothing_exists(temp_db: Path) -> None:
+def test_reset_when_nothing_exists(isolated_env: Path) -> None:
     assert cli.main(["reset", "--mode", "demo", "--yes"]) == 0
 
 

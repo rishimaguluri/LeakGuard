@@ -55,6 +55,10 @@ for col, (_, r) in zip(cols, card.iterrows(), strict=True):
 
 ui.section("Side by side", "Each panel has its own scale. Lower is better on every measure.")
 names = list(card["company"])
+# Short names fit under each mini chart; first words are unique for typical operator lists.
+short = [n.split()[0] for n in names]
+if len(set(short)) < len(short):
+    short = names
 colors = [ui.ACCENT if i == 0 else ui.ACCENT_LIGHT for i in range(len(names))]
 panels = [
     ("Leak rate", [v * 100 for v in card["leak_rate"]], [M.pct(v) for v in card["leak_rate"]]),
@@ -78,7 +82,7 @@ fig = make_subplots(rows=1, cols=4, subplot_titles=[p[0] for p in panels], horiz
 for i, (title, values, texts) in enumerate(panels, start=1):
     fig.add_trace(
         go.Bar(
-            x=names,
+            x=short,
             y=values,
             marker_color=colors,
             text=texts,
@@ -93,7 +97,7 @@ for i, (title, values, texts) in enumerate(panels, start=1):
     )
 ui.style(fig, height=330, legend=False, money_axis=None)
 fig.update_yaxes(showticklabels=False, showgrid=False)
-fig.update_xaxes(tickfont=dict(size=12))
+fig.update_xaxes(tickfont=dict(size=13), tickangle=0)
 fig.update_annotations(font=dict(size=14, color=ui.TEXT, family=ui.FONT))
 fig.update_layout(margin=dict(l=8, r=8, t=40, b=8))
 ui.show(fig)
@@ -111,7 +115,6 @@ ui.table(
         ui.Col("expired_share", "Expired-card share", ui.fmt_pct, num=True),
         ui.Col("avg_days_to_resolve", "Avg days to resolve", lambda v: ui.esc(days(v)), num=True),
         ui.Col("open_cents", "Open at risk", ui.fmt_money, num=True),
-        ui.Col("recovered_cents", "Recovered", ui.fmt_money, num=True, tone=lambda r: "gain"),
     ],
 )
 st.markdown(

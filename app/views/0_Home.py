@@ -100,7 +100,7 @@ with right:
         files = M.source_files_frame(ses, c.portfolio_id)
         props = M.properties(ses, c.portfolio_id)
     gaps = M.coverage_gap_count(M.coverage(files, props, c.as_of))
-    steps = M.next_steps(s, df_all, card, gaps)
+    steps = M.next_steps(s, df_all, card, gaps, c.settings.upcoming_expiry_days)
     if steps:
         st.markdown(
             '<ol class="lg-steps">' + "".join(f"<li>{ui.esc(x)}</li>" for x in steps) + "</ol>",

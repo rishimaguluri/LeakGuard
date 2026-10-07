@@ -389,7 +389,10 @@ class ProcessorRow(_Row):
 
     @model_validator(mode="after")
     def _sign(self) -> ProcessorRow:
-        """Sales positive; refunds and chargebacks negative."""
+        """Sales positive; refunds and chargebacks negative. A negative amount
+        with no type column (so defaulted to sale) is treated as a refund."""
+        if self.transaction_type == "sale" and self.amount_cents < 0:
+            self.transaction_type = "refund"
         if self.transaction_type in ("refund", "chargeback"):
             self.amount_cents = -abs(self.amount_cents)
         elif self.transaction_type == "sale":

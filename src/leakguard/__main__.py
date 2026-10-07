@@ -11,7 +11,7 @@ from leakguard.config import load_settings
 
 def cmd_demo(args: argparse.Namespace) -> int:
     """Generate demo files, rebuild the demo database, import, match, seed history."""
-    from leakguard.db import dispose_engine
+    from leakguard.db import reset_database
     from leakguard.demo.generator import generate_demo
     from leakguard.demo.history import seed_history
     from leakguard.ingest.importer import format_summary, import_all
@@ -23,9 +23,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
     cards = sum(p["cards"] for p in truth["properties"].values())
     print(f"    {len(truth['properties'])} properties, {cards:,} virtual cards.")
 
-    dispose_engine(settings)
-    if settings.db_path.exists():
-        settings.db_path.unlink()
+    reset_database(settings)
     print("2/4 Importing (same pipeline as real data) ...")
     summary = import_all(settings)
     if args.verbose:
@@ -119,11 +117,10 @@ def cmd_reset(args: argparse.Namespace) -> int:
         if answer.strip() != args.mode:
             print("Cancelled.")
             return 1
-    from leakguard.db import dispose_engine
+    from leakguard.db import reset_database
 
-    dispose_engine(settings)
-    db_path.unlink()
-    print(f"Deleted {db_path.name}.")
+    reset_database(settings)
+    print(f"Emptied {db_path.name}.")
     return 0
 
 

@@ -5,7 +5,8 @@ Each canonical field is scored against each file column on two things:
          this target, or to the field's own name (rapidfuzz, 0 to 100)
   values share of sample values that parse as the field's kind (a date
          column should parse as dates, an amount as money, and so on)
-score = 0.7 x name + 0.3 x values. Fields are assigned greedily, highest
+score = 0.7 x name + 0.3 x values. For enum and card fields, when 90%+ of
+values parse, the score is at least 0.4 x name + 0.6 x values. Fields are assigned greedily, highest
 score first, one column per field, if the score is at least MIN_SCORE.
 """
 
@@ -22,6 +23,7 @@ from leakguard.ingest.readers import RawTable, header_key
 from leakguard.schemas import TARGETS, CanonicalField
 
 MIN_SCORE = 55
+VALUE_DRIVEN_KINDS = {"enum", "last4"}
 SAMPLE_ROWS = 50
 
 
@@ -109,7 +111,11 @@ def suggest(table: RawTable, target: str, mappings: list[Mapping]) -> list[Sugge
         for col, header in columns:
             ns = name_score(header, aliases)
             vs = value_score(f.kind, f.name, [r[col] for r in table.rows[:SAMPLE_ROWS]])
-            candidates.append((round(0.7 * ns + 0.3 * vs), f.name, col, ns, vs))
+            score = 0.7 * ns + 0.3 * vs
+            if f.kind in VALUE_DRIVEN_KINDS and vs >= 90:
+                # Values that all parse as this kind are strong evidence on their own.
+                score = max(score, 0.4 * ns + 0.6 * vs)
+            candidates.append((round(score), f.name, col, ns, vs))
     candidates.sort(reverse=True)
     taken_fields: dict[str, Suggestion] = {}
     taken_cols: set[int] = set()

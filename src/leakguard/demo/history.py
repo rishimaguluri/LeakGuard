@@ -17,12 +17,12 @@ from __future__ import annotations
 import random
 from datetime import date, datetime, time, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from leakguard.config import Settings
 from leakguard.db import session_scope
-from leakguard.models import Exception_, ManagementCompany, Property
+from leakguard.models import Exception_, ExceptionEvent, ManagementCompany, Property
 from leakguard.recovery import workflow as wf
 
 ONBOARDING_DAYS_BEFORE_AS_OF = 183
@@ -82,10 +82,25 @@ def seed_history(settings: Settings, seed: int = 11) -> dict[str, int]:
             .order_by(Exception_.id)
         ).all()
         for row, code, company in rows:
+            _backdate_detection(session, row, onboarding, as_of)
             _work_one(
                 session, row, code, TEAMS.get(company, DEFAULT_TEAM), rng, as_of, onboarding, counts
             )
     return counts
+
+
+def _backdate_detection(session: Session, row: Exception_, onboarding: date, as_of: date) -> None:
+    """The demo pretends LeakGuard has run weekly since onboarding, so each item
+    was first flagged a few days after it became due (or at onboarding)."""
+    due = row.due_date or as_of
+    detected = min(max(due + timedelta(days=2), onboarding), as_of)
+    stamp = datetime.combine(detected, time(6, 0))
+    row.first_detected_at = stamp
+    session.execute(
+        update(ExceptionEvent)
+        .where(ExceptionEvent.exception_id == row.id, ExceptionEvent.event_type == "detected")
+        .values(timestamp=stamp)
+    )
 
 
 def _work_one(
