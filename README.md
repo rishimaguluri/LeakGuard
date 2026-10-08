@@ -48,6 +48,16 @@ python -m leakguard demo
 streamlit run app/Home.py
 ```
 
+## Put it online (Streamlit Community Cloud, free)
+
+GitHub stores the code but cannot run it. To get a link anyone can open:
+
+1. Sign in at https://share.streamlit.io with your GitHub account.
+2. Click **Create app**, choose repository `rishimaguluri/LeakGuard`, branch `main`, main file `app/Home.py`. Under **Advanced settings** pick Python 3.12 and paste `app_password = "choose-a-password"` into **Secrets**.
+3. Click **Deploy**. The first visit builds the demo portfolio (2 to 4 minutes); after that it loads straight away.
+
+Only demo data goes online this way. Real hotel data stays on your machine in `data/raw/`, which is never committed.
+
 ## Commands
 
 | Command | What it does |

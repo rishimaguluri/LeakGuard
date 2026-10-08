@@ -75,7 +75,9 @@ def test_queue_opens_evidence_for_focused_item(seeded) -> None:
     assert "Why it was flagged" in text
 
 
-def test_empty_database_shows_guidance(isolated_env: Path) -> None:
+def test_empty_database_shows_guidance(isolated_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Real mode with no data yet: guidance, not an error. (Demo mode builds itself.)"""
+    monkeypatch.setenv("LEAKGUARD_DATA_MODE", "real")
     at = AppTest.from_file(HOME, default_timeout=60)
     at.run()
     assert not at.exception

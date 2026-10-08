@@ -20,6 +20,8 @@ if SRC_DIR.exists() and str(SRC_DIR) not in sys.path:
 
 import context  # noqa: E402
 import ui  # noqa: E402
+from leakguard.config import load_settings  # noqa: E402
+from leakguard.demo.build import demo_ready  # noqa: E402
 
 st.set_page_config(
     page_title="LeakGuard",
@@ -31,6 +33,32 @@ ui.inject_css()
 
 if not context.password_gate():
     st.stop()
+
+
+@st.cache_resource(show_spinner=False)
+def _build_demo_once(db_url: str) -> bool:
+    """Build the demo on a fresh server (e.g. a cloud deploy). Runs once per
+    server process; other visitors wait for it instead of starting another."""
+    from leakguard.demo.build import build_demo
+
+    build_demo(load_settings())
+    return True
+
+
+_settings = load_settings()
+if _settings.data_mode == "demo" and not demo_ready(_settings):
+    ui.topbar(None, "demo")
+    with st.status(
+        "Setting up the demo portfolio. First visit only, about 2 to 4 minutes.", expanded=True
+    ) as status:
+        st.write(
+            "Generating 12 months of fake hotel exports, importing them through the same "
+            "pipeline real files use, matching every virtual card, and adding recovery history."
+        )
+        _build_demo_once(_settings.db_url)
+        status.update(label="Demo portfolio ready", state="complete")
+    st.cache_data.clear()
+    st.rerun()
 
 PAGES = APP_DIR / "views"
 nav = st.navigation(

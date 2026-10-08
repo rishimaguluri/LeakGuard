@@ -11,40 +11,12 @@ from leakguard.config import load_settings
 
 def cmd_demo(args: argparse.Namespace) -> int:
     """Generate demo files, rebuild the demo database, import, match, seed history."""
-    from leakguard.db import reset_database
-    from leakguard.demo.generator import generate_demo
-    from leakguard.demo.history import seed_history
-    from leakguard.ingest.importer import format_summary, import_all
-    from leakguard.matching.engine import run_matching
+    from leakguard.demo.build import build_demo
+    from leakguard.ingest.importer import format_summary
 
-    settings = load_settings().model_copy(update={"data_mode": "demo"})
-    print(f"1/4 Generating demo export files in {settings.raw_dir} ...")
-    truth = generate_demo(settings)
-    cards = sum(p["cards"] for p in truth["properties"].values())
-    print(f"    {len(truth['properties'])} properties, {cards:,} virtual cards.")
-
-    reset_database(settings)
-    print("2/4 Importing (same pipeline as real data) ...")
-    summary = import_all(settings)
+    _, summary, _, _ = build_demo(load_settings())
     if args.verbose:
         print(format_summary(summary))
-    else:
-        rejected = sum(r.rows_rejected for r in summary.reports)
-        print(
-            f"    {len(summary.reports)} files, {summary.rows_imported:,} rows, {rejected} rejected."
-        )
-        for r in summary.reports:
-            for w in r.warnings:
-                if w.startswith("Full card numbers"):
-                    print(f"    warning: {w}")
-
-    print("3/4 Matching ...")
-    match = run_matching(settings)
-    print("    " + "\n    ".join(match.lines()))
-
-    print("4/4 Adding six months of simulated recovery work ...")
-    counts = seed_history(settings)
-    print("    " + ", ".join(f"{n} {k.replace('_', ' ')}" for k, n in counts.items()))
     print("Ready. Open the dashboard with: streamlit run app/Home.py")
     return 0
 
